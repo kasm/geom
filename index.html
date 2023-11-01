@@ -80,6 +80,7 @@
     ]
   }
   function ds(seg1, color) {
+    console.log('ds ', seg1)
     ctx.beginPath()
     ctx.moveTo(conv(seg1[0])[0], conv(seg1[0])[1])
     ctx.lineTo(conv(seg1[1])[0], conv(seg1[1])[1])
@@ -123,6 +124,7 @@
   dp(p1, 'red')
   dp(p21, 'red')
   dp(p22, 'blue')
+  ds([p1, p22])
 
   `
   ta.value=p
