@@ -113,14 +113,36 @@ var GeomCore = function() {
             rez[1] = 0 - (a0*(c1) - a1*(c0))/d;
             return rez;
         },
+
+        'int': function(ob1, ob2) {
+            if (ob1.type === 'line' && ob2.type === 'line') {
+                let d = ob1.a * ob2.b - ob1.b * ob2.a;
+                return {
+                    type: 'point',
+                    x: (ob1.b * ob2.c - ob2.b * ob1.c) / d,
+                    y: (ob2.a * ob1.c - ob1.a * ob2.c) / d
+                }
+            }
+        },
         'point_mid_point_point': function(rez, p0, p1) {
             rez[0] = (p0[0]+p1[0])/2;
             rez[1] = (p0[1]+p1[1])/2;
             return rez;
         },
+        'mid': function(p1, p2) {
+            return {
+                type: 'point',
+                x: (p1.x + p2.x) / 2,
+                y: (p1.y + p2.y) / 2
+            }
+        },
+
         'point_per_point_line': function(rez, point, line) {
             var line1 = []; this.line_per_point_line(line1, point, line);
             return this.point_int_line_line(rez, line, line1);
+        },
+        'per': function(point, line) {
+
         },
 
         // here calculated point on the line at the specified distance from point
@@ -138,6 +160,53 @@ var GeomCore = function() {
                 line[1] * line[2],
                 line[0] * line[2]
             ]
+        },
+        // input
+        // line - determines coordinate system
+        // wPoint - point in world coordinates
+        'lineGetRel': function (line, wPoint) {
+            let c = this.lineCenter(line)
+            let dx = wPoint.x - c.x
+           // dx - -dx
+            let dy = wPoint.y - c.y
+          //  dy = -dy
+            let x = -line.a * dy + line.b*dx;
+            let y = line.a *dx + line.b * dy;
+            return {type: "point", x, y}
+        },
+        'lineCenter': function (line) {
+            let x = -line.c * line.a;
+            let y = -line.c * line.b;
+            return {type: 'point', x, y}
+        },
+        'lineGetAbs': function(line, lPoint) {
+            let c = this.lineCenter(line);
+            let dx = lPoint.y * line.a - lPoint.x * line.b;
+            dx = lPoint.x * line.b + lPoint.y * line.a
+            let dy = lPoint.y * line.b - lPoint.x * line.a
+            let x = c.x + dx;
+            let y = c.y + dy;
+            return {type: 'point', x, y}
+        },
+        'perPoint': function(line, point) {
+            let r1 = this.lineGetRel(line, point)
+            r1.y = 0
+            let a2 = this.lineGetAbs(line, r1)
+            return a2
+        },
+        'parPoint': function(line, t) {
+            let r1 = this.lineGetRel(line, point)
+            r1.y = 0
+            let a2 = this.lineGetAbs(line, {type: 'point', x: t, y:0})
+            return a2
+        },
+        'perLine': function(line, point) {
+            let a = line.b;
+            let b = - line.a;
+            let l2 = {type: 'line', a, b, c: 0}
+            let pRelNew = this.lineGetRel(l2, point)
+            l2.c = -pRelNew.y
+            return l2
         },
 
 
@@ -241,6 +310,14 @@ var GeomCore = function() {
         'line_lineseg': function (rez, ls) {
             return this.line_point_point(rez, ls[0], ls[1]);
         },
+        'line': function (p1, p2) {
+            let a = p1.y - p2.y
+            let b = p2.x - p1.x
+            let d = Math.sqrt(a*a+b*b)
+            a = a/d; b = b/d;
+            let c = (p1.x * p2.y - p2.x * p1.y) / d;
+            return {type: 'line', a, b, c}
+        },  
 
 
         //                                                  CIRCLE

@@ -49,6 +49,12 @@
   canvas.height = height
   let ctx = canvas.getContext('2d')
   function conv(p) {
+    if (p?.type) {
+      return [
+        p.x + width / 2,
+        height / 2 - p.y
+      ]
+    }
     return [
       p[0] + width / 2,
       height / 2 - p[1] 
@@ -59,9 +65,25 @@
     ds([[0, -height], [0, height]])
   }
   drawAxis()
+
   function dp(p, color) {
     console.log(p)
+
     let r = 3
+
+    if (p?.type === 'point') {
+      console.log('draw point  type ')
+      ctx.beginPath()
+      ctx.fillStyle = color ?? p.color
+      ctx.strokeStyle = color ?? p.color
+      let c = conv(p)
+      console.log(c)
+      ctx.arc(c[0], c[1], r, 0, Math.PI*2)
+      //ctx.arc(200,200, r, 0, Math.PI*2)
+     // ctx.stroke()
+      ctx.fill()
+      return
+    }
     let c = color ?? 'black'
     ctx.beginPath()
     ctx.fillStyle = c
@@ -79,11 +101,59 @@
       li
     ]
   }
+
+  function point(x, y, color) { return {type: 'point', x, y, color: color ?? 'black'}}
+
   function ds(seg1, color) {
+    if (seg1?.type) {
+      
+    }
     console.log('ds ', seg1)
     ctx.beginPath()
-    ctx.moveTo(conv(seg1[0])[0], conv(seg1[0])[1])
-    ctx.lineTo(conv(seg1[1])[0], conv(seg1[1])[1])
+    ctx.lineWidth= 3
+    if (seg1?.type) {
+      let p1 = conv(seg1.pts[0])
+      let p2 = conv(seg1.pts[1])
+      ctx.moveTo(p1.x, p1.y)
+      ctx.lineTo(p2.x, p2.y)
+    } else {
+      ctx.moveTo(conv(seg1[0])[0], conv(seg1[0])[1])
+      ctx.lineTo(conv(seg1[1])[0], conv(seg1[1])[1])
+    }
+    ctx.stroke()
+  }
+
+  function d(ob) {
+    if (Array.isArray(ob)) ob.forEach(e => d(e))
+    if (ob?.type === 'line') dli(ob)
+    if (ob?.type === 'point') dp(ob)
+    if (ob?.type === 'seg') ds(ob)
+  }
+
+  function dli(line1, color) {
+    ctx.beginPath()
+    ctx.lineWidth=1
+    let c = color ?? 'black'
+    ctx.fillStyle = c
+    ctx.strokeStyle = c
+    let cen = gc.lineCenter(line1)
+    console.log('cen ', cen)
+    //cen.x = 22; 
+    //cen.y = 33
+    let r = 11
+    let cen1 = point(cen.x + line1.a * r, cen.y +line1.b*r)
+    let cenc = conv(cen)
+    let cen1c = conv(cen1)
+
+    let p1 = conv(gc.lineGetAbs(line1, {type: 'point', x: -800, y:0}))
+    let p2 = conv(gc.lineGetAbs(line1, {type: 'point', x:  800, y:0}))
+    console.log(p1, p2)
+    ctx.moveTo(p1[0], p1[1])
+    ctx.lineTo(p2[0], p2[1])
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(cenc[0], cenc[1])
+    ctx.lineTo(cen1c[0], cen1c[1])
     ctx.stroke()
   }
 </script>
@@ -125,8 +195,34 @@
   dp(p21, 'red')
   dp(p22, 'blue')
   ds([p1, p22])
+  let e3 = {type: 'line', a: .8, b: .6, c: -3}
+  // let e3 = {type: 'line', a: 1, b:0, c: -3}
+console.log('cen ', gc.lineCenter(e3))
+let p3 = {type: 'point', x: 2.4, y:1.98}
+let p3r = gc.lineGetRel(e3, p3)
+console.log('p3r ', p3r)
+let p3a = gc.lineGetAbs(e3, p3r)
+let p3a1 = gc.lineGetAbs(e3, {type: 'point', x: 10, y: 0})
+let p3a2 = gc.lineGetAbs(e3, {type: 'point', x: -10, y: 0})
+console.log('p3a ', p3a)
+console.log('p3a1 ', p3a1)
+console.log('p3a2 ', p3a2)
 
+dli(e3)
   `
+
+p = `
+let p0 = point(-100, 100, 'green')
+let p1 = point(-110, 120, 'green')
+let lii = gc.line(p0, p1)
+let p00 = point(0, 0)
+let pp = gc.perPoint(lii, p00)
+let ppar = gc.parPoint(lii, -55)
+console.log(lii)
+let p4 = point(50, 50)
+let li4 = gc.perLine(lii, p4)
+d([p0, p1, lii, pp, ppar, p4, li4])
+`
   ta.value=p
 
   eval(p)
