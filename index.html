@@ -67,17 +67,15 @@
   drawAxis()
 
   function dp(p, color) {
-    console.log(p)
 
     let r = 3
 
     if (p?.type === 'point') {
-      console.log('draw point  type ')
+    //  console.log('draw point  type ')
       ctx.beginPath()
       ctx.fillStyle = color ?? p.color
       ctx.strokeStyle = color ?? p.color
       let c = conv(p)
-      console.log(c)
       ctx.arc(c[0], c[1], r, 0, Math.PI*2)
       //ctx.arc(200,200, r, 0, Math.PI*2)
      // ctx.stroke()
@@ -212,16 +210,27 @@ dli(e3)
   `
 
 p = `
-let p0 = point(-100, 100, 'green')
+let p0 = point(-150, 200, 'green')
 let p1 = point(-110, 120, 'green')
+let p2 = point(35, 10)
+let p3 = point(100, 110)
 let lii = gc.line(p0, p1)
+let li2 = gc.line(p1,p2)
+let li3 = gc.line(p2,p3)
 let p00 = point(0, 0)
 let pp = gc.perPoint(lii, p00)
 let ppar = gc.parPoint(lii, -55)
 console.log(lii)
 let p4 = point(50, 50)
 let li4 = gc.perLine(lii, p4)
-d([p0, p1, lii, pp, ppar, p4, li4])
+let lir = gc.line(p2, p3)
+let lia = gc.absLine(lii, lir)
+let lir2 = gc.relLine(lii, lia)
+lir2.c +=11
+console.log(lir, lia)
+
+//d([p0, p1, lii, pp, ppar, p4, li4, p2, p3, li2, li3])
+d([p0, p1, lii, pp, ppar, p2, p3, lir, lia, lir2])
 `
   ta.value=p
 

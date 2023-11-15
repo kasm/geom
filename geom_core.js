@@ -210,6 +210,43 @@ var GeomCore = function() {
         },
 
 
+        'line': function (p1, p2) {
+            let a = p1.y - p2.y
+            let b = p2.x - p1.x
+            let d = Math.sqrt(a*a+b*b)
+            a = a/d; b = b/d;
+            let c = (p1.x * p2.y - p2.x * p1.y) / d;
+            return {type: 'line', a, b, c}
+        },
+
+        // sin (α + β) = sin α cos β + cos α sin β
+        // cos (α + β) = cos α cos β – sin α sin β
+        'absLine': function(baseLine, line) {
+            // a - sin, b - cos
+            let a = baseLine.a * line.b + baseLine.b * line.a;
+            let b = baseLine.b * line.b - baseLine.a * line.a;
+            let rc = this.lineCenter(line)
+            let ac = this.lineGetAbs(baseLine, rc)
+
+            console.log('rc, ac ', rc, ac)
+
+            let c = ac.x * a + ac.y * b
+            return {type: 'line', a, b, c: -c}
+        },
+
+        // sin(α−β)=sinαcosβ−cosαsinβ
+        // cos(α−β)=cosαcosβ+sinαsinβ
+        'relLine': function(baseLine, line) {
+            // alpha - line
+            // beta - baseLine
+            let a = line.a * baseLine.b - line.b * baseLine.a;
+            let b = line.b * baseLine.b + baseLine.a * line.a;
+            let ac = this.lineCenter(line);
+            let rc = this.lineGetRel(baseLine, ac)
+            let c = ac.x * baseLine.a + ac.y * baseLine.b;
+            return {type: 'line', a, b, c: -c}
+        },
+
 
 
 
@@ -310,14 +347,6 @@ var GeomCore = function() {
         'line_lineseg': function (rez, ls) {
             return this.line_point_point(rez, ls[0], ls[1]);
         },
-        'line': function (p1, p2) {
-            let a = p1.y - p2.y
-            let b = p2.x - p1.x
-            let d = Math.sqrt(a*a+b*b)
-            a = a/d; b = b/d;
-            let c = (p1.x * p2.y - p2.x * p1.y) / d;
-            return {type: 'line', a, b, c}
-        },  
 
 
         //                                                  CIRCLE
