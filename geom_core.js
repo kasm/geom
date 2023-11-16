@@ -123,6 +123,27 @@ var GeomCore = function() {
                     y: (ob2.a * ob1.c - ob1.a * ob2.c) / d
                 }
             }
+            if (ob1.type === 'seg' && ob2.type === 'seg') {
+                let li1 = this.line(ob1)
+                let li2 = this.line(ob2)
+                let p = this.int(li1, li2)
+                let p11x = this.parPoint(li1, ob1.pts[0])
+                let p12x = this.parPoint(li1, ob1.pts[1])
+                let p21x = this.parPoint(li2, ob2.pts[0])
+                let p22x = this.parPoint(li2, ob2.pts[1])
+                let pi1 = this.parPoint(li1, p)
+                let pi2 = this.parPoint(li2, p)
+                if (
+                    ((p11x < pi1 && p12x > pi1) ||
+                    (p11x > pi1 && p12x < pi1)) &&
+                    ((p21x < pi2 && p22x > pi2) ||
+                    (p21x > pi2 && p22x < pi2))
+                ) {
+                    return [p]
+                } else {
+                    return []
+                }                
+            }
         },
         'point_mid_point_point': function(rez, p0, p1) {
             rez[0] = (p0[0]+p1[0])/2;
@@ -194,7 +215,7 @@ var GeomCore = function() {
             let a2 = this.lineGetAbs(line, r1)
             return a2
         },
-        'parPoint': function(line, t) {
+        'pointPar': function(line, t) {
             let r1 = this.lineGetRel(line, point)
             r1.y = 0
             let a2 = this.lineGetAbs(line, {type: 'point', x: t, y:0})
@@ -207,6 +228,10 @@ var GeomCore = function() {
             let pRelNew = this.lineGetRel(l2, point)
             l2.c = -pRelNew.y
             return l2
+        },
+        'parPoint': function(line, p) {
+            let pn = this.lineGetRel(line, p)
+            return pn.x
         },
 
 
@@ -243,9 +268,101 @@ var GeomCore = function() {
             let b = line.b * baseLine.b + baseLine.a * line.a;
             let ac = this.lineCenter(line);
             let rc = this.lineGetRel(baseLine, ac)
-            let c = ac.x * baseLine.a + ac.y * baseLine.b;
+            let c = rc.x * baseLine.a + rc.y * baseLine.b;
+            c = rc.x * a + rc.y * b;
             return {type: 'line', a, b, c: -c}
         },
+
+        'shiftSeg': function(p1, p2, shift) {
+            let line = this.line(p1, p2)
+            let r1 = this.lineGetRel(line, p1)
+            let r2 = this.lineGetRel(line, p2)
+            line.c += shift
+            let p1n = this.pointPar(line, r1.x)
+            let p2n = this.pointPar(line, r2.x)
+            return [p1n, p2n]
+        },
+
+        'shiftPline': function(pline, shift) {
+            console.log(pline)
+            let s2 = {type: 'seg', pts: []}
+            for (let i=0; i<-pline.pts.length - 1; i++) {
+                let p1 = pline.pts[i]
+                let p2 = pline.pts[i+1]
+                let s = this.shiftSeg(p1, p2, shift)
+                s2.pts.push(s[0])
+                s2.pts.push(s[1])
+            }
+            let lastPoint
+            let firstPoint
+
+            for (let i=1; i<pline.pts.length-1; i++) {
+                
+                let p1 = pline.pts[i-1]
+                let p2 = pline.pts[i]
+                let p3 = pline.pts[i+1]
+                let s = this.shiftSeg(p1, p2)
+                let [p1n, p2n] = this.shiftSeg(p1, p2, shift)
+                let [p21n, p3n] = this.shiftSeg(p2, p3, shift)
+                let li1 = this.line(p1n, p2n)
+                let li2 = this.line(p21n, p3n)
+                let p2i = this.int(li1, li2)
+                if (i==1) s2.pts.push(p1n)
+                s2.pts.push(p2i)
+                lastPoint = p3n
+                
+            }
+            s2.pts.push(lastPoint)
+            return s2
+        },
+        'filletLines': function(line1, line2, r) {
+            let pi = this.int(line1, line2)
+            let pnts = []
+            let lr1 = JSON.parse(JSON.stringify(line1))
+            let lr2 = JSON.parse(JSON.stringify(line2))
+            lr1.c -= r
+            lr2.c -= r
+            let pir = this.int(lr1, lr2)
+            // pir.x = 0
+            // pir.y = 0
+            let pir1 = this.perPoint(line1, pir)
+            let pir2 = this.perPoint(line2, pir)
+            let d1x = pir1.x - pir.x
+            let d1y = pir1.y - pir.y
+            console.log('d ', d1x, d1y)
+            let ang1 = Math.atan2(d1y, d1x)
+            let ang2 = Math.atan2(pir2.y - pir.y, pir2.x - pir.x)
+            let dang = ang2 - ang1
+            console.log(pir, pir1, pir2)
+            console.log('ang1 ang2 ',ang1, ang2)
+            console.log(d1x, d1y)
+            let n = 11
+            // pnts.push(pir)
+            // pnts.push(pir1)
+            // pnts.push(pir2)
+            for (let i=0; i<n; i++) {
+                //if (i>3) continue
+                let ang = ang1 + dang * i / n //+ Math.PI;
+                let dx = r * Math.cos(ang)
+                let dy = r * Math.sin(ang)
+                let x = pir.x + dx
+                let y = pir.y + dy
+                console.log(ang1, dx, dy, Math.cos(ang1))
+
+                pnts.push({type: 'point', x, y})
+            }
+            return pnts
+        },
+        'filletPoly': function(pline, r) {
+            let pts = pline.pts
+            for (let i=1; i<pts.length-1; i++) {
+                
+            }
+        },
+        'seg': function(a) {
+            return {type: 'seg', pts: a}
+        },
+        
 
 
 
