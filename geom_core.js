@@ -315,37 +315,71 @@ var GeomCore = function() {
             s2.pts.push(lastPoint)
             return s2
         },
-        'filletLines': function(line1, line2, r1, r2, limit1, limit2) {
+        'filletLines': function(line1, line2, r1p, r2p, limit1, limit2) {
+            let r1 = r1p; let r2 = r2p
             let pi = this.int(line1, line2)
+            let pir1, pir2, pari1, pari2, pir
             let pnts = []
             let lr1 = JSON.parse(JSON.stringify(line1))
-            let lr2 = JSON.parse(JSON.stringify(line2))
+            let lr2 = JSON.parse(JSON.stringify(line2));
+            radPass = false
+            let count = 0
+            while(!radPass && count < 5) {
+count++
             
+                lr1 = JSON.parse(JSON.stringify(line1))
+                lr2 = JSON.parse(JSON.stringify(line2));
             lr1.c -= r1
             lr2.c -= r2
             r = Math.abs( r1)
-            let pir = this.int(lr1, lr2)
+            pir = this.int(lr1, lr2)
             // pir.x = 0
             // pir.y = 0
-            let pir1 = this.perPoint(line1, pir)
-            let pir2 = this.perPoint(line2, pir)
+            pir1 = this.perPoint(line1, pir)
+            pir2 = this.perPoint(line2, pir)
 
-            let pari1 = this.parPoint(line1, pi)
-            let pari2 = this.parPoint(line2, pi)
-            let parPir1 = this.parPoint(line1, pir)
-            let parPir2 = this.parPoint(line2, pir)
-            console.warn('limit ', limit1, limit2, pari1, pari2)
+            pari1 = this.parPoint(line1, pi)
+            pari2 = this.parPoint(line2, pi)
+            parPir1 = this.parPoint(line1, pir)
+            if (!parPir1) debugger
+            parPir2 = this.parPoint(line2, pir)
+            console.warn('limit ', limit1, limit2)
+            console.warn('par int ', pari1, pari2)
+            console.warn('par c ', parPir1, parPir2)
             console.log((pari1 - limit1) , (parPir1 - limit1))
             console.log((pari2 - limit2) , (parPir2 - limit2))
-            // if ( 
-            //     (limit1 && (pari1 - limit1) * (parPir1 - limit1) < 0) ||
-            //     (limit2 && (pari2 - limit2) * (parPir2 - limit2) < 0) 
+            let limitDist1 = pari1 - limit1
+            let limitDist2 = pari2 - limit2
+            let cenDist1 = parPir1 - pari1
+            let cenDist2 = parPir2 - pari2
+            if ( 
+                (limit1 && (pari1 - limit1) * (parPir1 - limit1) < 0) ||
+                (limit2 && (pari2 - limit2) * (parPir2 - limit2) < 0) 
                 
-            //     ) {
-            //         console
-            //     return [pi]
-            // }
+                ) {
+                    
+                let minPar = Math.max(
+                    Math.abs(pari1 - parPir1),
+                    Math.abs(pari2 - parPir2)
+                    )
+                let minLimit = Math.min(
+                        Math.abs(limitDist1), Math.abs(limitDist2)
+                )
+                //let limitPar = Math.abs(pari1 - limit1)
+                let ratio = minLimit / minPar
+                r = Math.abs(r1) * ratio
+                r1 *= ratio
+                if (r1 === Infinity) debugger
+                r2 *= ratio
+                console.log(r1)
 
+
+                //return [pi]
+                radPass = false
+                } else {
+                    radPass = true
+                }
+            }
             let d1x = pir1.x - pir.x
             let d1y = pir1.y - pir.y
             console.log('d ', d1x, d1y)
@@ -378,6 +412,7 @@ var GeomCore = function() {
 
                 pnts.push({type: 'point', x, y})
             }
+            pnts.push(pir2)
             console.log('rez ', pnts)
             return pnts
         },

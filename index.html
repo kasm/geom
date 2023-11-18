@@ -40,7 +40,8 @@
 </body>
 <script src = "geom_core.js"></script>
 <script>
-  
+    let gc = GeomCore();
+
   let width = 600
   let height = 600
   let canvas = document.querySelector('canvas')
@@ -61,8 +62,10 @@
     ]
   }
   function drawAxis() {
-    ds([[-width, 0], [width, 0]])
-    ds([[0, -height], [0, height]])
+    // ds([[-width, 0], [width, 0]])
+    // ds([[0, -height], [0, height]])
+    dli({a: 1, b:0, c:0})
+    dli({a: 0, b:1, c:0})
   }
   drawAxis()
 
@@ -102,18 +105,18 @@
 
   function point(x, y, color) { return {type: 'point', x, y, color: color ?? 'black'}}
 
-  function ds(seg1, color) {
+  function ds(seg1, color, width) {
 
 
 
     if (seg1?.type) {
       
     }
-    console.log('ds ', seg1)
+    console.warn('ds ', seg1, color, width)
     ctx.beginPath()
     ctx.strokeStyle = (color ?? seg1.color) ?? 'black'
 
-    ctx.lineWidth= 3
+    ctx.lineWidth= width ?? 3
     if (seg1?.type) {
       let p1 = conv(seg1.pts[0])
 
@@ -132,11 +135,11 @@
     ctx.stroke()
   }
 
-  function d(ob) {
-    if (Array.isArray(ob)) ob.forEach(e => d(e))
+  function d(ob, p2, p3) {
+    if (Array.isArray(ob)) ob.forEach(e => d(e, p2, p3))
     if (ob?.type === 'line') dli(ob)
     if (ob?.type === 'point') dp(ob)
-    if (ob?.type === 'seg') ds(ob)
+    if (ob?.type === 'seg') ds(ob, p2, p3)
   }
 
   function dli(line1, color) {
@@ -183,7 +186,6 @@ function dtr(tr, color) {
 
 
 <script>
-  let gc = GeomCore();
   let ta = document.querySelector('textarea')
   ta.innerHTML='kjkjk'
   // let p0 = [-100, 100]
@@ -260,9 +262,10 @@ d([p0, p1, lii, pp, ppar, p2, p3, lir, p5, lia, lir2])
 
 p = `
 ctx.clearRect(0, 0, canvas.width, canvas.height)
-let p0 = point(-150, 200, 'green')
+drawAxis()
+let p0 = point(-150, 280, 'green')
 let p1 = point(-110, 120, 'green')
-let p2 = point(55, 210)
+let p2 = point(55, 150)
 let p3 = point(85, 110)
 let p4 = point(120, 125)
 let p5 = point(150, 115)
@@ -272,13 +275,14 @@ let s1 = gc.seg([p0, p1, p2, p3,p4,p5, p6])
 s1.color = 'red'
 d([p0, p1, p2, p3, pn[0], pn[1]])
 d([s1])
-let s2 = gc.shiftPline(s1, 55)
+let s2 = gc.shiftPline(s1, 0)
 let s3 = gc.shiftPline(s1, 100)
-s2 =gc.filletPoly(s2, 22)
-s3 =gc.filletPoly(s3, 42)
+d(s3,'red')
+s2 =gc.filletPoly(s2, 132)
+s3 =gc.filletPoly(s3, 142)
 
 console.log('s2 ', s2)
-d([s2, s3])
+d([s2, s3], null, 1)
 let trs = gc.triangles(s2, s3)
 console.log(trs)
 trs.forEach(t => dtr(t))
