@@ -71,7 +71,7 @@
 
   function dp(p, color) {
 
-    let r = 3
+    let r = 4
 
     if (p?.type === 'point') {
     //  console.log('draw point  type ')
@@ -83,6 +83,12 @@
       //ctx.arc(200,200, r, 0, Math.PI*2)
      // ctx.stroke()
       ctx.fill()
+      console.error('jkjkj', c)
+      ctx.fillStyle = 'red'
+      
+      ctx.font = '22px Arial'
+      ctx.fillText(p.name, c[0]+11, c[1])
+
       return
     }
     let c = color ?? 'black'
@@ -103,7 +109,47 @@
     ]
   }
 
-  function point(x, y, color) { return {type: 'point', x, y, color: color ?? 'black'}}
+  function generateArrowPoly() {
+    console.warn('gen arrow poly')
+    let tipLen = 111
+    let tipWidth = 133
+    let width = 15
+    
+    // let tip = this.positionTip
+    // let tail = this.positionTail
+    // let dx = tip.x - tail.x
+    // let dy = tip.y - tail.y
+    let len = 255 // Math.sqrt(dx * dx + dy * dy)
+    let gc = new GeomCore()
+
+    let poly = [
+      0,-20,
+        130, 50,
+        tipWidth, tipLen+113,
+        width, tipLen,
+        width, len,
+        0, len,
+    ]
+    let pts = []
+    for (let i=0; i<poly.length; i+=2) {
+        pts.push(gc.point(poly[i], poly[i+1]))
+    }
+    // poly.forEach(p => pts.push(gc.point(p[0], p[1])))
+    let gPoly = gc.seg(pts)
+    gPoly = gc.mirrow(gPoly)
+    // d(gPoly)
+    gPoly2 = gc.filletPoly(gPoly, 25)
+
+    console.log('poly ', poly, gPoly)
+    trs = gc.triangles1(gPoly2, gc.point(1, 11))
+// d([trs])
+trsi = gc.trianglesMakeIndexed(trs, 0)
+console.log('trs ', trs, trsi)
+    return gPoly
+    
+   }
+
+ // function point(x, y, color) { return {type: 'point', x, y, color: color ?? 'black'}}
 
   function ds(seg1, color, width) {
 
@@ -133,6 +179,8 @@
       ctx.lineTo(conv(seg1[1])[0], conv(seg1[1])[1])
     }
     ctx.stroke()
+    //seg1?.ends?.forEach(p => d(p))
+
   }
 
   function d(ob, p2, p3) {
@@ -153,7 +201,7 @@
     //cen.x = 22; 
     //cen.y = 33
     let r = 11
-    let cen1 = point(cen.x + line1.a * r, cen.y +line1.b*r)
+    let cen1 = {type: 'point', x: cen.x + line1.a * r, y: cen.y +line1.b*r}
     let cenc = conv(cen)
     let cen1c = conv(cen1)
 
@@ -270,15 +318,22 @@ let p3 = point(85, 110)
 let p4 = point(120, 125)
 let p5 = point(150, 115)
 let p6 = point(170, 145)
-let pn = gc.shiftSeg(p0, p1, 11)
-let s1 = gc.seg([p0, p1, p2, p3,p4,p5, p6])
+let p7 = point(175, 255)
+
+let s1 = gc.seg([p0, p1, p2, p3,p4,p5, p6, p7, gc.clone(p0)])
+ gc.move(s1, gc.point(-1, -110))
 s1.color = 'red'
-d([p0, p1, p2, p3, pn[0], pn[1]])
+// let s1r = gc.rotate(s1, .5, p0);s1 = s1r
+
+d([s1])
+
 d([s1])
 let s2 = gc.shiftPline(s1, 0)
 let s3 = gc.shiftPline(s1, 100)
 d(s3,'red')
 s2 =gc.filletPoly(s2, 132)
+let trs2 = gc.triangles1(s2, gc.point(110, 111))
+console.log('trs2 ', trs2)
 s3 =gc.filletPoly(s3, 142)
 
 console.log('s2 ', s2)
@@ -286,6 +341,7 @@ d([s2, s3], null, 1)
 let trs = gc.triangles(s2, s3)
 console.log(trs)
 trs.forEach(t => dtr(t))
+trs2.forEach(t => dtr(t, 'green'))
 
 // let li1 = gc.line(p1, p2)
 // let li2 = gc.line(p2, p3)
@@ -297,6 +353,23 @@ trs.forEach(t => dtr(t))
 // let sfn = gc.filletPoly(s1, 22)
 // d(sfn)
 
+`
+
+p = `
+let p1 = gc.point(-0, 110)
+let p2 = gc.point(-100, 100)
+let p3 = gc.point(-90, 0)
+
+// let p4 = gc.point(150, 100)
+// let s1 = gc.seg([p1, p2])
+// let s2 = gc.seg([p3, p4])
+// let s3 = gc.seg(gc.filletSeg(p1, p2, p3, p4, 32))
+// d([s1, s2, s3, p1, p2, p3, p4])
+
+let pl = generateArrowPoly()
+let pl2 = gc.filletPoly(pl, 21)
+// console.log('arrrrr ',pl)
+d(pl2, null, 1)
 `
   ta.value=p
 

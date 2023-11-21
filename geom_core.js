@@ -4,6 +4,7 @@
 
 class GeomCore {
     eps = .000001
+    pointCount = 0
     constructor(width, height) {
         this.width = width
         this.height = height
@@ -119,6 +120,10 @@ class GeomCore {
         a = a / d; b = b / d;
         let c = (p1.x * p2.y - p2.x * p1.y) / d;
         return { type: 'line', a, b, c }
+    }
+    point(x, y) {
+        console.warn(this.pointCount, x, y)
+        return {type: 'point', x, y, name: 'p' + this.pointCount++}
     }
 
     // sin (α + β) = sin α cos β + cos α sin β
@@ -265,12 +270,36 @@ class GeomCore {
         console.log('d ', d1x, d1y)
         let ang1 = Math.atan2(d1y, d1x) + Math.PI * 2
         let ang2 = Math.atan2(pir2.y - pir.y, pir2.x - pir.x) + Math.PI * 2
+
+        
         let dang = ang2 - ang1
-        if (dang > Math.PI) {
-            ang2 -= Math.PI * 2
+
+        // let dang = ang2 - ang1
+        // if (dang > Math.PI * 2) {
+        //     ang2 -= Math.PI * 2
+        //     dang = ang2 - ang1
+        // }
+
+
+        // choose smallest angle        
+        console.log('ang ', ang1, ang2)
+        if (Math.abs(dang) > Math.PI ) {
+            ang2 += -Math.PI  * 2 * Math.sign(dang)
             dang = ang2 - ang1
         }
-        let n = 5
+
+//         let angSign = Math.sign(this.lineGetRel(line1, pir).y)
+        
+//         dang = ang2 - angSign * ang1
+//         console.log('sign ', angSign, dang)
+//         dang = this.normailzeAngle(dang) * angSign
+// console.log('norm ', dang)
+
+
+
+
+
+        let n = 15
         for (let i = 0; i < n; i++) {
 
             let ang = ang1 + dang * i / n 
@@ -286,12 +315,26 @@ class GeomCore {
         return pnts
     }
 
+    // make angle from 0 to 2*PI
+    normailzeAngle(ang) {//return ang
+
+        let rez = ang
+        if (ang < 0) {
+            rez += 2 * Math.PI
+            console.log('rez ', rez)
+        }
+        if (ang > 2 * Math.PI) rez -= 2 * Math.PI
+        return rez
+    }
+
     filletSeg(p1, p2, p3, p4, r, p2n) {
         let li1 = this.line(p1, p2)
         let li2 = this.line(p3, p4)
+        // d([li1, li2])
         // direction of the circle center poistion
         let pr1 = this.lineGetRel(li1, p4)
         let pr2 = this.lineGetRel(li2, p1)
+        console.log('rel ', pr1, pr2)
         let limit = null;
         if (p2n) limit = this.lineGetRel(li1, p2n)
 
@@ -310,6 +353,7 @@ class GeomCore {
     filletPoly(pline, r) {
         let pts = pline.pts
         let pts2 = []
+        let ends = []
         pts2.push(pline.pts[0])
         let limit = pts[0]
         for (let i = 1; i < pts.length - 1; i++) {
@@ -321,12 +365,13 @@ class GeomCore {
             let li2 = this.line(p2, p3)
             // let lpts = this.filletLines(li1, li2, 22)
             let lpts = this.filletSeg(p1, p2, p2, p3, r, limit)
+            ends.push(lpts[Math.floor(lpts.length / 2)])
             if (lpts.length == 0) debugger
             lpts.forEach(p => pts2.push(p))
             limit = lpts[lpts.length - 1]
         }
         pts2.push(pline.pts[pts.length - 1])
-        return { type: 'seg', pts: pts2 }
+        return { type: 'seg', pts: pts2, ends }
     }
     triangles(pline1, pline2) {
         let pts1 = pline1.pts
@@ -335,18 +380,94 @@ class GeomCore {
         for (let i = 0; i < pts1.length - 1; i++) {
             let tri1 = [pts1[i], pts1[i + 1], pts2[i]]
             let tri2 = [pts1[i + 1], pts2[i], pts2[i + 1]]
-            console.log(i, tri1, pline1)
+            // console.log(i, tri1, pline1)
             trs.push(tri1)
             trs.push(tri2)
         }
         return trs
     }
+    triangles1(pline, pInt) {
+        let trs = []
+        for (let i=0; i<pline.pts.length-1; i++) {
+            let pt = pline.pts[i]
+            let pt2 = pline.pts[i+1]
+            trs.push([
+                pt, pt2, pInt
+            ])
+        }
+        
+        return trs
+    }
+    trianglesMakeIndexed(trs, offset) {
+        let pts = []
+        let indices = []
+        let intCount = isNaN(offset) ? 0 : offset
+        for (let i=0; i<trs.length; i++) {
+            let tr = trs[i]
+            pts.push(tr[0])
+            pts.push(tr[1])
+            pts.push(tr[2])
+            indices.push(intCount++)
+            indices.push(intCount++)
+            indices.push(intCount++)
+        }
+        return {pts, indices}
+    }
+    move(ob, shift) {
+        console.log('move ', ob)
+        if (ob.type === 'seg') {
+            ob.pts.forEach(p => this.move(p, shift))
+        }
+        if (ob.type === 'point') {
+            ob.x += shift.x
+            ob.y += shift.y
+        }
+    }
+    rotate(ob, angle, center) {
+        if (ob.type === 'point') {
+            let p2 = this.clone(ob)
+            if (center) {
+                p2.x -= center.x
+                p2.y -= center.y
+            }
+            let p2n = this.point(0, 0)
+            p2n.x = p2.x * Math.cos(angle) - p2.y * Math.sin(angle)
+            p2n.y = p2.y * Math.cos(angle) + p2.x * Math.sin(angle)
+            if (center) {
+                p2n.x += center.x
+                p2n.y += center.y
+            }
+            
+            return p2n
+        }
+        if (ob.type === 'seg') {
+            let pts = []
+            ob.pts.forEach(p => {
+                pts.push(this.rotate(p, angle, center))
+            })
+            return {type: 'seg', pts}
+        }
+    }
+    mirrow(pline) {
+        let pts = pline.pts
+        let pts2 = []
+        for (let i=0; i<pts.length-1; i++) {
+            pts2.push(pts[i])
+        }
+        for (let i=pts.length-1; i>=0; i--) {
+            let pm = this.clone(pts[i])
+            pm.x = -pm.x
+            pts2.push(pm)
+        }
+        return {type: 'seg', pts: pts2}
+    }
+    clone(ob) {
+        if (ob.type === 'point') {
+            return {type: 'point', x: ob.x, y: ob.y}
+        }
+    }
     seg(a) {
         return { type: 'seg', pts: a }
     }
 
-
-
 }
-
-
