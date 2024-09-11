@@ -14,12 +14,18 @@
     <!-- <canvas id="glCanvas" width="4096" height="4096"></canvas> -->
     <canvas id="glCanvas" width="512" height="512"></canvas>
     <div>
+        <div id="sdsfsf"><input type="number" id="addition" value="15000000"> <button id="apply">apply</button></div>
         <textarea id="text" style="width: 450px; height: 150px"></textarea>
     </div>
     <script>
         let addition = 15400000
+        let addEl = document.getElementById('addition')
+        document.getElementById('apply').onclick = function() {
+            
+            draw()
+        }
         let text = document.getElementById('text')
-        text.value = 'WebGL precision text\n\n'
+        
         function initWebGL() {
             const canvas = document.getElementById('glCanvas');
             const gl = canvas.getContext('webgl');
@@ -134,9 +140,18 @@
             ])
 
 
+
             let  nSquares = xSquares * ySquares
+
+            function draw() { //                                                                                    DRAW
+text.value = 'WebGL precision text\n\n'
+                addition = addEl.value
+                addition = parseInt(addition)
             // 
             let squareVeritices = new Float32Array(nSquares * 6 * 2);
+
+
+
             let aIDs = new Float32Array(nSquares * 6 * 2 );
             for (let i=0; i< ySquares; i++) {
                 for (let j=0; j< xSquares; j++) {
@@ -238,15 +253,8 @@
             gl.readPixels(0, 0, gl.canvas.width, gl.canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, outputArray);
 
 
-            // from our app
-            //         const id = ( this.pixelBuffer[ 0 ] << 16 ) | ( this.pixelBuffer[ 1 ] << 8 ) | ( this.pixelBuffer[ 2 ] );
 
-            function decodeValue(x, y, z) {
-                let r = (x << 16 | y << 8 | z)
-                return r
-            }
-
-
+            
             let r = []
             for (let i=0; i<ySquares; i++) {
                 for (let j=0; j<xSquares; j++) {
@@ -278,6 +286,19 @@
             text.value += '\nOutput indices: ' + JSON.stringify(r)
             text.value += '\n\nErrors: ' + errors
             console.log('errors ', errors);
+
+
+        } // draw
+
+            draw()
+            // from our app
+            //         const id = ( this.pixelBuffer[ 0 ] << 16 ) | ( this.pixelBuffer[ 1 ] << 8 ) | ( this.pixelBuffer[ 2 ] );
+
+            function decodeValue(x, y, z) {
+                let r = (x << 16 | y << 8 | z)
+                return r
+            }
+
 
         }
     </script>
