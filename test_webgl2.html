@@ -14,12 +14,38 @@
     <!-- <canvas id="glCanvas" width="4096" height="4096"></canvas> -->
     <canvas id="glCanvas" width="512" height="512"></canvas>
     <div>
-        <div id="sdsfsf"><input type="number" id="addition" value="15000000"> <button id="apply">apply</button></div>
+        <div id="sdsfsf"><input type="number" id="addition" value="10000"> <button id="apply">apply</button></div>
         <textarea id="text" style="width: 450px; height: 150px"></textarea>
     </div>
     <script>
         let addition = 15400000
         let addEl = document.getElementById('addition')
+
+
+
+        /*
+x, y - integer coords of element
+we, he - width and height of element in pixels (64x64)
+wa, ha - width and height of canvas in pixels (512x512)
+        */
+
+function getPixelIndex(x, y, wa, ha) {
+    return (x + y * wa)
+}
+function getPixelByCoords(x, y, we, he, wa, ha, array) {
+    
+    let dx = we * .75
+    let dy = he * .75
+    let a = 0
+
+    let xn = x*we + dx
+    let yn = y * he + dy
+    let ind = getPixelIndex(xn, yn, wa, ha) * 4
+    return ind
+
+
+
+}
         document.getElementById('apply').onclick = function() {
             
             draw()
@@ -73,9 +99,12 @@
 
 
         const gl = initWebGL();
-        let k = 1
-        const xSquares = gl.canvas.width / k
-        const ySquares =  gl.canvas.height / k
+        let kpx = 64
+        let cx = gl.canvas.width
+        let cy = gl.canvas.height
+
+        const xSquares = gl.canvas.width / kpx
+        const ySquares =  gl.canvas.height / kpx
         const xSize = 2 * 1 / xSquares;
         const ySize = 2 * 1 / ySquares;
         if (gl) {
@@ -172,8 +201,8 @@ text.value = 'WebGL precision text\n\n'
                     squareVeritices[indexv + 7] = y
                     squareVeritices[indexv + 8] = x + xSize
                     squareVeritices[indexv + 9] = y
-                    squareVeritices[indexv + 10] = x;//+ xSize
-                    squareVeritices[indexv + 11] = y + ySize
+                    squareVeritices[indexv + 10] = x;
+                    squareVeritices[indexv + 11] = y ;//+ ySize
 
 
                     let index2 = i * xSquares + j;
@@ -195,7 +224,7 @@ text.value = 'WebGL precision text\n\n'
                 }
             }
 
-            // console.log('squareVeritices', squareVeritices)
+            console.log('squareVeritices', squareVeritices)
             console.log('canvas ', gl.canvas.width, gl.canvas.height)
 
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height); 
@@ -259,6 +288,7 @@ text.value = 'WebGL precision text\n\n'
             for (let i=0; i<ySquares; i++) {
                 for (let j=0; j<xSquares; j++) {
                     let index = i * xSquares * 4 + j * 4;
+                    index = getPixelByCoords(j, i, kpx, kpx, gl.canvas.width, gl.canvas.height, outputArray)
                     let x = outputArray[index+0]
                     let y = outputArray[index+1]
                     let z = outputArray[index+2]
