@@ -148,6 +148,7 @@ function getPixelByCoords(x, y, we, he, wa, ha, array) {
                     // gl_FragColor[1] = .50;
                     // gl_FragColor[2] = vId * .0013120;
                     gl_FragColor.xyz = rez;
+                    gl_FragColor[0] = .5;
                     gl_FragColor[3] = 1.;
                 }
             `;
