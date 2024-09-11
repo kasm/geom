@@ -14,8 +14,8 @@
     <!-- <canvas id="glCanvas" width="4096" height="4096"></canvas> -->
     <canvas id="glCanvas" width="512" height="512"></canvas>
     <div>
-        <div id="sdsfsf"><input type="number" id="addition" value="10000"> <button id="apply">apply</button></div>
-        <textarea id="text" style="width: 450px; height: 150px"></textarea>
+        <div id="sdsfsf"><input type="number" id="addition" value="15000000"> <button id="apply">apply</button></div>
+        <textarea id="text" style="width: 450px; height: 150px; border: 1px solid red;"></textarea>
     </div>
     <script>
         let addition = 15400000
@@ -125,7 +125,8 @@ function getPixelByCoords(x, y, we, he, wa, ha, array) {
             `;
 
             const fsSource = `
-                precision mediump float;
+                // precision mediump float;
+                precision highp float;
                 uniform sampler2D uTexture;
                 uniform float uAddValue;
                 varying vec2 vTexCoord;
@@ -148,7 +149,7 @@ function getPixelByCoords(x, y, we, he, wa, ha, array) {
                     // gl_FragColor[1] = .50;
                     // gl_FragColor[2] = vId * .0013120;
                     gl_FragColor.xyz = rez;
-                    gl_FragColor[0] = .5;
+                    // gl_FragColor[0] = .5;
                     gl_FragColor[3] = 1.;
                 }
             `;
@@ -182,7 +183,7 @@ text.value = 'WebGL precision text\n\n'
 
 
 
-            let aIDs = new Float32Array(nSquares * 6 * 2 );
+            let aIDs = new Float32Array(nSquares * 6 );
             for (let i=0; i< ySquares; i++) {
                 for (let j=0; j< xSquares; j++) {
 
@@ -215,12 +216,12 @@ text.value = 'WebGL precision text\n\n'
                     aIDs[index2 + 3] = index + addition
                     aIDs[index2 + 4] = index + addition
                     aIDs[index2 + 5] = index + addition
-                    aIDs[index2 + 6] = index + addition
-                    aIDs[index2 + 7] = index + addition
-                    aIDs[index2 + 8] = index + addition
-                    aIDs[index2 + 9] = index + addition
-                    aIDs[index2 + 10] = index + addition
-                    aIDs[index2 + 11] = index + addition
+                    // aIDs[index2 + 6] = index + addition
+                    // aIDs[index2 + 7] = index + addition
+                    // aIDs[index2 + 8] = index + addition
+                    // aIDs[index2 + 9] = index + addition
+                    // aIDs[index2 + 10] = index + addition
+                    // aIDs[index2 + 11] = index + addition
 
                 }
             }
@@ -275,7 +276,7 @@ text.value = 'WebGL precision text\n\n'
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            gl.drawArrays(gl.TRIANGLES, 0, nSquares*6*2);
+            gl.drawArrays(gl.TRIANGLES, 0, nSquares*6);
             // gl.drawElements(gl.TRIANGLE, 6, gl.UNSIGNED_SHORT, 0);
             // gl.drawElements(gl.TRIANGLE, 2, gl.UNSIGNED_BYTE, 0);
 
