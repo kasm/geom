@@ -4,6 +4,9 @@
       #cont {
         display: flex;
       }
+      #canv {
+        width: 600px;
+      }
       canvas {
  
         border: 1px solid red;
@@ -39,7 +42,7 @@
 
 </body>
 <script src = "geom_core.js"></script>
-<script>
+<script2 style = "display: none;">
     let gc = new GeomCore();
 
   let width = 600
@@ -194,7 +197,7 @@ function dtr(tr, color) {
   ctx.lineTo(p1[0], p1[1])
   ctx.stroke()
 }
-</script>
+</script2>
 
 
 
@@ -322,25 +325,25 @@ trs2.forEach(t => dtr(t, 'green'))
 
 function generateArrowPoly() {
     console.warn('gen arrow poly')
-    let tipLen = 111
-    let tipWidth = 53
-    let width = 35
+    let tipLen = 100
+    let tipWidth = 70
+    let width = 60
     
     // let tip = this.positionTip
     // let tail = this.positionTail
     // let dx = tip.x - tail.x
     // let dy = tip.y - tail.y
-    let len = 255 // Math.sqrt(dx * dx + dy * dy)
+    let len = 355 // Math.sqrt(dx * dx + dy * dy)
     let gc = new GeomCore()
 
     let poly = [
       0,-20,
-        130, 50,
-        tipWidth, tipLen+113,
+      //  130, 50,
+        tipWidth, tipLen+13,
         width, tipLen,
-        width, len
+        width, len,
         //,
-      //  0, len,
+        //0, len,
     ]
     let pts = []
     for (let i=0; i<poly.length; i+=2) {
@@ -370,8 +373,9 @@ pl.isClosed = true
 gc.move(pl, {x: 0, y:-151})
 let pl3 = gc.shiftPline(pl, 31)
 
-gc.trimPoly(pl3)
-// d([pl, pl3])
+// gc.trimPoly(pl3)
+d([pl])
+d(pl3, 'green')
 
 let pl2f = gc.filletPoly(pl, 13)
 let pl3f = gc.filletPoly(pl3, 33)
@@ -404,6 +408,11 @@ gc.trimPoly(plt)
 gc.move(plt, {x: 211, y:0})
 d([pl, plt])
 `
+
+// p=`
+// let p1 =gc.point(111,111)
+// d(p1)
+// `
   ta.value=p
 
   eval(p)

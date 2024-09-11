@@ -2,13 +2,18 @@
  * Created by Dima on 04.01.2018.
  */
 
+let d = null
+
 class GeomCore {
     eps = .000001
     pointCount = 0
     isDebug = false
+    isCanvas = true
+    ctx = null
     constructor(width, height) {
-        this.width = width
-        this.height = height
+        this.width = width ?? 600
+        this.height = height ?? 600
+        if (this.isCanvas) this.initCanvas()
     }
     conv(p) {
         if (p?.type === 'point') {
@@ -19,6 +24,151 @@ class GeomCore {
             }
         }
     }
+    
+    initCanvas() {
+        let canv = document.createElement('canvas')
+        this.ctx = canv.getContext('2d')
+        canv.width = this.width
+        canv.height = this.height
+        canv.style = 'position: fixed; z-index: 99999; width: 600px; height: 600px; left: 0px; top:0px;';
+        canv.id = 'geomCanv'
+        document.querySelector('body').appendChild(canv)  
+        d = this.d.bind(this)  
+    }
+
+    drawAxis() {
+        d({type: 'line', a: 1, b: 0, c:0})
+        d({type: 'line', a: 0, b: 1, c:0})
+    }
+
+    dp(p, color) {
+        let r = 4
+        let ctx = this.ctx
+
+        ctx.moveTo(0, 0)
+        ctx.lineTo(111,111)
+        ctx.stroke()
+        let col = (color ?? p.color) ?? 'black'
+        //c = c ?? 'black'
+        if (p?.type === 'point') {
+              ctx.beginPath()
+              ctx.fillStyle = col
+              ctx.strokeStyle = col
+              let c = this.conv(p)
+              console.log('draw point  type ', c)
+
+            //   ctx.arc(c[0], c[1], r, 0, Math.PI*2)
+              ctx.arc(c.x, c.y, r, 0, Math.PI*2)
+              //ctx.arc(200,200, r, 0, Math.PI*2)
+             // ctx.stroke()
+              ctx.fill()
+              //console.error('jkjkj', c)
+              ctx.fillStyle = 'red'
+              
+              ctx.font = '22px Arial'
+              ctx.fillText(p.name, c[0]+11, c[1])
+        
+
+              return
+            }
+
+    }
+
+
+    d(ob, p2, p3) {
+        if (Array.isArray(ob) && ob[0]?.length === 3) {
+          ob.forEach(t => this.dtr(t))
+          return
+        }
+        if (Array.isArray(ob)) ob.forEach(e => this.d(e, p2, p3))
+        if (ob?.type === 'line') this.dli(ob)
+        if (ob?.type === 'point') this.dp(ob)
+        if (ob?.type === 'seg') {
+            this.ds22(ob, p2, p3)
+        }
+      }
+
+
+    
+      ds22(seg1, color, width) {
+        let ctx = this.ctx
+
+
+        if (seg1?.type) {
+
+        }
+        console.warn('ds ', seg1, color, width)
+        ctx.beginPath()
+        ctx.strokeStyle = (color ?? seg1.color) ?? 'black'
+
+        ctx.lineWidth = width ?? 3
+        if (seg1?.type) {
+            let p1 = this.conv(seg1.pts[0])
+
+            ctx.moveTo(p1.x, p1.y)
+            for (let i = 1; i < seg1.pts.length; i++) {
+                let p2 = this.conv(seg1.pts[i])
+
+                ctx.lineTo(p2.x, p2.y)
+
+            }
+
+        } else {
+            ctx.moveTo(this.conv(seg1[0]).x, this.conv(seg1[0]).y)
+            ctx.lineTo(this.conv(seg1[1]).x, this.conv(seg1[1]).y)
+        }
+        ctx.stroke()
+        //seg1?.ends?.forEach(p => d(p))
+
+    }  
+
+    dli(line1, color) {
+        let ctx = this.ctx
+        ctx.beginPath()
+        ctx.lineWidth=1
+        let c = color ?? 'black'
+        ctx.fillStyle = c
+        ctx.strokeStyle = c
+        let cen = gc.lineCenter(line1)
+        console.log('cen ', cen)
+        //cen.x = 22; 
+        //cen.y = 33
+        let r = 11
+        let cen1 = {type: 'point', x: cen.x + line1.a * r, y: cen.y +line1.b*r}
+        let cenc = this.conv(cen)
+        let cen1c = this.conv(cen1)
+    
+        let p1 = this.conv(gc.lineGetAbs(line1, {type: 'point', x: -800, y:0}))
+        let p2 = this.conv(gc.lineGetAbs(line1, {type: 'point', x:  800, y:0}))
+        console.log(p1, p2)
+        ctx.moveTo(p1.x, p1.y)
+        ctx.lineTo(p2.x, p2.y)
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(cenc.x, cenc.y)
+        ctx.lineTo(cen1c.x, cen1c.y)
+        ctx.stroke()
+    }
+
+    dtr(tr, color) {
+        let ctx = this.ctx
+        ctx.beginPath()
+        ctx.lineWidth = 1
+        ctx.strokeStyle = color ?? 'blue'
+        let p1 = this.conv(tr[0])
+        let p2 = this.conv(tr[1])
+        let p3 = this.conv(tr[2])
+        ctx.moveTo(p1.x, p1.y)
+        ctx.lineTo(p2.x, p2.y)
+        ctx.lineTo(p3.x, p3.y)
+        ctx.lineTo(p1.x, p1.y)
+        ctx.stroke()
+    }
+    
+
+
+
+
     int(ob1, ob2, options) {
         if (ob1.type === 'line' && ob2.type === 'line') {
             let d = ob1.a * ob2.b - ob1.b * ob2.a;
@@ -194,7 +344,7 @@ class GeomCore {
     }
 
     shiftPline(pline, shift) {
-        console.log(pline)
+        if (this.isDebug) console.log(pline)
         let s2 = { type: 'seg', pts: [] }
         for (let i = 0; i < -pline.pts.length - 1; i++) {
             let p1 = pline.pts[i]
@@ -404,7 +554,7 @@ class GeomCore {
         let pts2 = []
         let ends = []
         if (!isClosed) pts2.push(pline.pts[0])
-        let limit = pts[0]
+        // let limit = pts[0]
         console.error('fillet poly ', r, pline)
         for (let i = 1; i < pts.length; i++) {
             let p1 = pts[i - 1]
@@ -412,14 +562,12 @@ class GeomCore {
             let p3 = pts[i + 1]
             if (isClosed && i === pts.length -1) p3 = pts[1]
             if (this.isDebug) console.error('pppppppppppppp ', i, p1, p2, p3)
-            let li1 = this.line(p1, p2)
-            let li2 = this.line(p2, p3)
-            // let lpts = this.filletLines(li1, li2, 22)
+
             let lpts = this.filletSeg(p1, p2, p2, p3, r, n ?? 5)
             ends.push(lpts[Math.floor(lpts.length / 2)])
             if (lpts.length == 0) debugger
             lpts.forEach(p => pts2.push(p))
-            limit = lpts[lpts.length - 1]
+            // limit = lpts[lpts.length - 1]
         }
         if (!isClosed) {
             pts2.push(pline.pts[pts.length - 1])
@@ -516,13 +664,14 @@ class GeomCore {
     }
     move(ob, shift) {
         // console.log('move ', ob)
-        // if (this.isDebug) console.log('move ', ob)
+        if (this.isDebug) console.log('move ', ob)
         if (Array.isArray(ob)) {
           ob.forEach(e => this.move(e, shift))
           return
         }
         if (ob.type === 'seg') {
             ob.pts.forEach(p => this.move(p, shift))
+            if (ob.center) this.move(ob.center, shift)
         }
         if (ob.type === 'point') {
             ob.x += shift.x
@@ -580,3 +729,6 @@ class GeomCore {
     }
 
 }
+
+
+let gc = new GeomCore();
