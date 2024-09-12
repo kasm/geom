@@ -21,7 +21,21 @@
         let addition = 0
         let addEl = document.getElementById('addition')
 
+let indType = 1
 
+let indTypes = [
+    {},
+    {
+        attr: "                attribute float aIdx;",
+        vVec: "                varying float vId;",
+        mVec: "                vId = aIdx;",
+        
+    }, {
+        attr: "                attribute vec2 aIdx;",
+        vVec: "                varying float vId;",
+        mVec: "                vId = aIdx.y;",
+    }
+]
 
         /*
 x, y - integer coords of element
@@ -111,14 +125,18 @@ function getPixelByCoords(x, y, we, he, wa, ha, array) {
             const vsSource = `
                 attribute vec2 aVertexPosition;
                 // attribute float aIdx;
-                attribute vec2 aIdx;
+                // attribute vec2 aIdx;
+            
+                ` + indTypes[indType].attr + `
+
                 attribute vec4 coordinates;
-                attribute vec4 internal;
+                // attribute vec4 internal;
                 varying vec2 vTexCoord;
-                varying float vId;
+                ` + indTypes[indType].vVec + `
                 void main(void) {
-                    vId = aIdx.x; 
-                    gl_Position.xy = aVertexPosition;
+
+                ` + indTypes[indType].mVec + `
+                gl_Position.xy = aVertexPosition;
                     gl_Position.z = 0.0;
                     gl_Position.w = 1.0;
                     // gl_Position.xy += vec2(0.0001, 0.0001);
@@ -133,7 +151,8 @@ function getPixelByCoords(x, y, we, he, wa, ha, array) {
                 uniform sampler2D uTexture;
                 uniform float uAddValue;
                 varying vec2 vTexCoord;
-                varying float vId;
+                ` + indTypes[indType].vVec + `
+                
 
                 // from our app
                 vec3 decodeValue(float value) {
@@ -186,7 +205,7 @@ text.value = 'WebGL precision text\n\n'
 
 
 
-            let aIDs = new Float32Array(nSquares * 6*2 );
+            let aIDs = new Float32Array(nSquares * 6*indType );
             for (let i=0; i< ySquares; i++) {
                 for (let j=0; j< xSquares; j++) {
 
@@ -211,7 +230,7 @@ text.value = 'WebGL precision text\n\n'
 
 
                     let index2 = i * xSquares + j;
-                    index2 *= 6 *2
+                    index2 *= 6 * indType
                     // let addition = 0
                     aIDs[index2 + 0] = index + addition
                     aIDs[index2 + 1] = index + addition
@@ -219,12 +238,15 @@ text.value = 'WebGL precision text\n\n'
                     aIDs[index2 + 3] = index + addition
                     aIDs[index2 + 4] = index + addition
                     aIDs[index2 + 5] = index + addition
-                    aIDs[index2 + 6] = index + addition
+                    if (indType == 2) {
+                        aIDs[index2 + 6] = index + addition
                     aIDs[index2 + 7] = index + addition
                     aIDs[index2 + 8] = index + addition
                     aIDs[index2 + 9] = index + addition
                     aIDs[index2 + 10] = index + addition
                     aIDs[index2 + 11] = index + addition
+
+                    }
 
                 }
             }
@@ -255,7 +277,7 @@ text.value = 'WebGL precision text\n\n'
 
             const idxLoc = gl.getAttribLocation(shaderProgram, 'aIdx');
             gl.enableVertexAttribArray(idxLoc);
-            gl.vertexAttribPointer(idxLoc, 2, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(idxLoc, indType, gl.FLOAT, false, 0, 0);
 
             gl.useProgram(shaderProgram);
 
@@ -279,7 +301,7 @@ text.value = 'WebGL precision text\n\n'
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            gl.drawArrays(gl.TRIANGLES, 0, nSquares*6*2);
+            gl.drawArrays(gl.TRIANGLES, 0, nSquares*6*indType);
             // gl.drawElements(gl.TRIANGLE, 6, gl.UNSIGNED_SHORT, 0);
             // gl.drawElements(gl.TRIANGLE, 2, gl.UNSIGNED_BYTE, 0);
 
