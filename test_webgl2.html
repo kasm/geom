@@ -14,14 +14,14 @@
     <!-- <canvas id="glCanvas" width="4096" height="4096"></canvas> -->
     <canvas id="glCanvas" width="512" height="512"></canvas>
     <div>
-        <div id="sdsfsf"><input type="number" id="addition" value="15000000"> <button id="apply">apply</button></div>
+        <div id="sdsfsf"><input type="number" id="addition" value="15200000"> <button id="apply">apply</button></div>
         <textarea id="text" style="width: 450px; height: 150px; border: 1px solid red;"></textarea>
     </div>
     <script>
         let addition = 0
         let addEl = document.getElementById('addition')
 
-let indType = 1
+let indType = 4
 
 let indTypes = [
     {},
@@ -33,7 +33,17 @@ let indTypes = [
     }, {
         attr: "                attribute vec2 aIdx;",
         vVec: "                varying float vId;",
-        mVec: "                vId = aIdx.y;",
+        mVec: "                vId = aIdx.x;",
+    },
+    {
+        attr: "                attribute float aIdx;",
+        vVec: "                varying float vId;",
+        mVec: "                vId = aIdx;",
+        
+    }, {
+        attr: "                attribute vec4 aIdx;",
+        vVec: "                varying float vId;",
+        mVec: "                vId = aIdx.x;",
     }
 ]
 
@@ -146,8 +156,9 @@ function getPixelByCoords(x, y, we, he, wa, ha, array) {
             `;
 
             const fsSource = `
-                // precision mediump float;
+                precision mediump float;
                 precision highp float;
+                // precision mediump int;
                 uniform sampler2D uTexture;
                 uniform float uAddValue;
                 varying vec2 vTexCoord;
@@ -200,6 +211,9 @@ function getPixelByCoords(x, y, we, he, wa, ha, array) {
 text.value = 'WebGL precision test\nIndex type: ' + indType + '\n'
                 addition = addEl.value
                 addition = parseInt(addition)
+                
+
+
             // 
             let squareVeritices = new Float32Array(nSquares * 6 * 2);
 
@@ -245,6 +259,28 @@ text.value = 'WebGL precision test\nIndex type: ' + indType + '\n'
                     aIDs[index2 + 9] = index + addition
                     aIDs[index2 + 10] = index + addition
                     aIDs[index2 + 11] = index + addition
+
+                    }
+
+                    if (indType == 4) {
+                        aIDs[index2 + 6] = index + addition
+                        aIDs[index2 + 7] = index + addition
+                        aIDs[index2 + 8] = index + addition
+                        aIDs[index2 + 9] = index + addition
+                        aIDs[index2 + 10] = index + addition
+                        aIDs[index2 + 11] = index + addition
+                        aIDs[index2 + 12] = index + addition
+                        aIDs[index2 + 13] = index + addition
+                        aIDs[index2 + 14] = index + addition
+                        aIDs[index2 + 15] = index + addition
+                        aIDs[index2 + 16] = index + addition
+                        aIDs[index2 + 17] = index + addition
+                        aIDs[index2 + 18] = index + addition
+                        aIDs[index2 + 19] = index + addition
+                        aIDs[index2 + 20] = index + addition
+                        aIDs[index2 + 21] = index + addition
+                        aIDs[index2 + 22] = index + addition
+                        aIDs[index2 + 23] = index + addition
 
                     }
 
@@ -301,7 +337,7 @@ text.value = 'WebGL precision test\nIndex type: ' + indType + '\n'
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            gl.drawArrays(gl.TRIANGLES, 0, nSquares*6*indType);
+            gl.drawArrays(gl.TRIANGLES, 0, nSquares*6*1);
             // gl.drawElements(gl.TRIANGLE, 6, gl.UNSIGNED_SHORT, 0);
             // gl.drawElements(gl.TRIANGLE, 2, gl.UNSIGNED_BYTE, 0);
 

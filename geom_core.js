@@ -36,18 +36,40 @@ class GeomCore {
         d = this.d.bind(this)  
     }
 
+    clear() {
+        // this.ctx.beginPath()
+        this.ctx.fillStyle = 'red'
+        this.pointCount = 0
+        this.ctx.fillRect(0, 0, this.width, this.height)
+        console.log(' clear ', this.width, this.height , this.ctx)
+        this.ctx.font = "12px Arial";
+        this.ctx.clearRect(0, 0, this.width, this.height)
+    }
+
     drawAxis() {
         d({type: 'line', a: 1, b: 0, c:0})
         d({type: 'line', a: 0, b: 1, c:0})
+        this.ctx.fillStyle = 'black'
+        this.ctx.fillText('0', this.width/2+3, this.height/2+12)
+
+        this.ctx.fillText('100', this.width/2+100, this.height/2+12)
+        this.ctx.fillText('200', this.width/2+200, this.height/2+12)
+        this.ctx.fillText('-100', this.width/2-100, this.height/2+12)
+        this.ctx.fillText('-200', this.width/2-200, this.height/2+12)
+
+        this.ctx.fillText('-200', this.width/2+3, this.height/2+200)
+        this.ctx.fillText('-100', this.width/2+3, this.height/2+100)
+        this.ctx.fillText('+100', this.width/2+3, this.height/2-100)
+        this.ctx.fillText('+200', this.width/2+3, this.height/2-200)
     }
 
-    dp(p, color) {
+    dp(p, color, text) {
         let r = 4
         let ctx = this.ctx
 
-        ctx.moveTo(0, 0)
-        ctx.lineTo(111,111)
-        ctx.stroke()
+        // ctx.moveTo(0, 0)
+        // ctx.lineTo(111,111)
+        // ctx.stroke()
         let col = (color ?? p.color) ?? 'black'
         //c = c ?? 'black'
         if (p?.type === 'point') {
@@ -55,7 +77,7 @@ class GeomCore {
               ctx.fillStyle = col
               ctx.strokeStyle = col
               let c = this.conv(p)
-              console.log('draw point  type ', c)
+              console.log('draw point  type ', c, p)
 
             //   ctx.arc(c[0], c[1], r, 0, Math.PI*2)
               ctx.arc(c.x, c.y, r, 0, Math.PI*2)
@@ -65,9 +87,9 @@ class GeomCore {
               //console.error('jkjkj', c)
               ctx.fillStyle = 'red'
               
-              ctx.font = '22px Arial'
-              ctx.fillText(p.name, c[0]+11, c[1])
-        
+              ctx.font = '18px Arial'
+              ctx.fillText(p.name, c.x+11, c.y)
+            // ctx.fillText('jksjdkf', c[0]+11, c[1])
 
               return
             }
@@ -82,7 +104,7 @@ class GeomCore {
         }
         if (Array.isArray(ob)) ob.forEach(e => this.d(e, p2, p3))
         if (ob?.type === 'line') this.dli(ob)
-        if (ob?.type === 'point') this.dp(ob)
+        if (ob?.type === 'point') this.dp(ob, p2, p3)
         if (ob?.type === 'seg') {
             this.ds22(ob, p2, p3)
         }
@@ -175,7 +197,9 @@ class GeomCore {
             return {
                 type: 'point',
                 x: (ob1.b * ob2.c - ob2.b * ob1.c) / d,
-                y: (ob2.a * ob1.c - ob1.a * ob2.c) / d
+                y: (ob2.a * ob1.c - ob1.a * ob2.c) / d,
+                name: this.pointCount++
+
             }
         }
         if (ob1.type === 'seg' && ob2.type === 'seg') {
@@ -209,7 +233,8 @@ class GeomCore {
         return {
             type: 'point',
             x: (p1.x + p2.x) / 2,
-            y: (p1.y + p2.y) / 2
+            y: (p1.y + p2.y) / 2,
+            name: this.pointCount++
         }
     }
 

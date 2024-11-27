@@ -25,11 +25,12 @@
   </head>
 <body>
   <div id="cont">
-    <div id="canv"><canvas>
-    </canvas></div>
+    <div id="canv">
+      <!-- <canvas>    </canvas> -->
+    </div>
     <div id="dashboard">
       <div>
-        <textarea> 
+        <textarea style="font-family: Arial, Helvetica, sans-serif; font-size: 16px;"> 
         </textarea>
       </div>
       <div>
@@ -325,8 +326,8 @@ trs2.forEach(t => dtr(t, 'green'))
 
 function generateArrowPoly() {
     console.warn('gen arrow poly')
-    let tipLen = 100
-    let tipWidth = 70
+    let tipLen = 150
+    let tipWidth = 130
     let width = 60
     
     // let tip = this.positionTip
@@ -358,37 +359,29 @@ function generateArrowPoly() {
    }
 
 p = `
-let p1 = gc.point(-0, 110)
-let p2 = gc.point(-100, 100)
-let p3 = gc.point(-90, 0)
-
-// let p4 = gc.point(150, 100)
-// let s1 = gc.seg([p1, p2])
-// let s2 = gc.seg([p3, p4])
-// let s3 = gc.seg(gc.filletSeg(p1, p2, p3, p4, 32))
-// d([s1, s2, s3, p1, p2, p3, p4])
+  // ctx.clearRect(0, 0, canvas.width, canvas.height)
+gc.clear()
 
 let pl = generateArrowPoly()
 pl.isClosed = true
 gc.move(pl, {x: 0, y:-151})
-let pl3 = gc.shiftPline(pl, 31)
+// d([pl])
 
-// gc.trimPoly(pl3)
-d([pl])
-d(pl3, 'green')
+let pl3 = gc.shiftPline(pl, 31)
+// d(pl3, 'red')
+
 
 let pl2f = gc.filletPoly(pl, 13)
 let pl3f = gc.filletPoly(pl3, 33)
 d([pl2f, pl3f], 'green')
+
 let trs = gc.triangles(pl2f, pl3f)
 d(trs)
-gc.move(pl3, {x: 13, y:3})
 
-// d([pl3], 'red')
-// d([pl3s], 'blue')
 `
 
 p2=`
+gc.clear()
 let p1 = gc.point(100, 10)
 let p2 = gc.point(-100, 100)
 let p3 = gc.point(-90, 0)
@@ -399,25 +392,55 @@ let p7 = gc.point(100, 80)
 let p8 = gc.point(110, -89)
 let p9 = gc.point(10, -99)
 
-d(p3)
+// d(p3)
 let pl = gc.seg([p1, p2, p3, p4, p5, p6, p7, p8, p9])
 gc.move(pl, {x:-110, y:0})
 let plt = gc.clone(pl)
 console.log('plt ', JSON.stringify(plt))
 gc.trimPoly(plt)
 gc.move(plt, {x: 211, y:0})
-d([pl, plt])
+// d([pl, plt])
 `
+
+let a1 = `
+gc.clear()
+gc.drawAxis()
+let p0 = gc.point(100, 10)
+let p1 = gc.point(-100, 100)
+let p2 = gc.point(-90, 0)
+let p3 = gc.point(-70, 30)
+
+let pl = gc.seg([p0, p1, p2, p3])
+
+let seg1 = gc.seg([p0, p1])
+let seg2 = gc.seg([p2, p3])
+let p4 = gc.int(seg1, seg2, {asLines: true})
+let p5 = gc.mid(p0, p3)
+let p6 = gc.int(seg1, p5, {asLines: true})
+
+console.log('p5 ', p5, seg1, seg2)
+
+// d([p0, p1, p2, p3, p4])
+d([p0, p1, p2, p3, p4, p5, p6])
+d(pl)
+
+
+`
+
+
 
 // p=`
 // let p1 =gc.point(111,111)
 // d(p1)
 // `
-  ta.value=p
 
-  eval(p)
+let pEval =a1
+  ta.value=pEval
+
+  eval(pEval)
   document.getElementById('apply').addEventListener('click', () => {
     let t = ta.value
+
     console.log(t)
     eval(t)
   })
