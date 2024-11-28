@@ -22,6 +22,7 @@
         height: 550px;
       }
       #projectsContainer {
+        margin: 10px 0px;
         border: 2px solid aquamarine;
         padding: 5px;
         width: 800px;
@@ -33,10 +34,16 @@
         margin: 5px;
         border: 2px solid orange
       }
+
+    #applyButton {
+      width: 100%;
+      height: 40px;
+    }
     </style>
   </head>
 <body>
   <script src = "./geom_core.js"></script>
+  <script src = "./projects.js">  </script>
 
   <div id="cont">
     <div id="canv">
@@ -48,7 +55,7 @@
         </textarea>
       </div>
       <div>
-        <button id="apply">apply</button>
+        <button id="applyButton">apply</button>
       </div>
         
       
@@ -58,404 +65,20 @@
   <div id="projectsContainer">
 
   </div>
-    <script src = "./manager.js"></script>
 
 </body>
-<script2 style = "display: none;">
-    let gc = new GeomCore();
 
-  let width = 600
-  let height = 600
-  let canvas = document.querySelector('canvas')
-  let div = document.querySelector('div')
-  canvas.width=width
-  canvas.height = height
-  let ctx = canvas.getContext('2d')
-  function conv(p) {
-    if (p?.type) {
-      return [
-        p.x + width / 2,
-        height / 2 - p.y
-      ]
-    }
-    return [
-      p[0] + width / 2,
-      height / 2 - p[1] 
-    ]
-  }
-  function drawAxis() {
-    // ds([[-width, 0], [width, 0]])
-    // ds([[0, -height], [0, height]])
-    dli({a: 1, b:0, c:0})
-    dli({a: 0, b:1, c:0})
-  }
-  drawAxis()
-
-  function dp(p, color) {
-
-    let r = 4
-
-    if (p?.type === 'point') {
-    //  console.log('draw point  type ')
-      ctx.beginPath()
-      ctx.fillStyle = color ?? p.color
-      ctx.strokeStyle = color ?? p.color
-      let c = conv(p)
-      ctx.arc(c[0], c[1], r, 0, Math.PI*2)
-      //ctx.arc(200,200, r, 0, Math.PI*2)
-     // ctx.stroke()
-      ctx.fill()
-      //console.error('jkjkj', c)
-      ctx.fillStyle = 'red'
-      
-      ctx.font = '22px Arial'
-      //ctx.fillText(p.name, c[0]+11, c[1])
-
-      return
-    }
-    let c = color ?? 'black'
-    ctx.beginPath()
-    ctx.fillStyle = c
-    ctx.moveTo(conv(p[0]), (p[1]))
-    ctx.lineTo(conv(p[0]+5), p[1])
-    console.log('dp: ', conv(p))
-    ctx.arc(conv(p)[0], conv(p)[1], r, 0, Math.PI*2)
-    ctx.stroke()
-    ctx.fill()
-    // ctx.endPath()
-  }
-  function li(li, color) {
-    let d = 5555
-    let p0 = [
-      li
-    ]
-  }
-
-
- // function point(x, y, color) { return {type: 'point', x, y, color: color ?? 'black'}}
-
-  function ds(seg1, color, width) {
-
-
-
-    if (seg1?.type) {
-      
-    }
-    console.warn('ds ', seg1, color, width)
-    ctx.beginPath()
-    ctx.strokeStyle = (color ?? seg1.color) ?? 'black'
-
-    ctx.lineWidth= width ?? 3
-    if (seg1?.type) {
-      let p1 = conv(seg1.pts[0])
-
-      ctx.moveTo(p1[0], p1[1])
-      for (let i=1; i<seg1.pts.length; i++) {
-        let p2 = conv(seg1.pts[i])
-
-        ctx.lineTo(p2[0], p2[1])
-
-      }
-      
-    } else {
-      ctx.moveTo(conv(seg1[0])[0], conv(seg1[0])[1])
-      ctx.lineTo(conv(seg1[1])[0], conv(seg1[1])[1])
-    }
-    ctx.stroke()
-    //seg1?.ends?.forEach(p => d(p))
-
-  }
-
-  function d(ob, p2, p3) {
-    if (Array.isArray(ob) && ob[0]?.length === 3) {
-      ob.forEach(t => dtr(t))
-      return
-    }
-    if (Array.isArray(ob)) ob.forEach(e => d(e, p2, p3))
-    if (ob?.type === 'line') dli(ob)
-    if (ob?.type === 'point') dp(ob)
-    if (ob?.type === 'seg') ds(ob, p2, p3)
-  }
-
-  function dli(line1, color) {
-    ctx.beginPath()
-    ctx.lineWidth=1
-    let c = color ?? 'black'
-    ctx.fillStyle = c
-    ctx.strokeStyle = c
-    let cen = gc.lineCenter(line1)
-    console.log('cen ', cen)
-    //cen.x = 22; 
-    //cen.y = 33
-    let r = 11
-    let cen1 = {type: 'point', x: cen.x + line1.a * r, y: cen.y +line1.b*r}
-    let cenc = conv(cen)
-    let cen1c = conv(cen1)
-
-    let p1 = conv(gc.lineGetAbs(line1, {type: 'point', x: -800, y:0}))
-    let p2 = conv(gc.lineGetAbs(line1, {type: 'point', x:  800, y:0}))
-    console.log(p1, p2)
-    ctx.moveTo(p1[0], p1[1])
-    ctx.lineTo(p2[0], p2[1])
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(cenc[0], cenc[1])
-    ctx.lineTo(cen1c[0], cen1c[1])
-    ctx.stroke()
-  }
-function dtr(tr, color) {
-  ctx.beginPath()
-  ctx.lineWidth = 1
-  ctx.strokeStyle = color ?? 'blue'
-  let p1 = conv(tr[0])
-  let p2 = conv(tr[1])
-  let p3 = conv(tr[2])
-  ctx.moveTo(p1[0], p1[1])
-  ctx.lineTo(p2[0], p2[1])
-  ctx.lineTo(p3[0], p3[1])
-  ctx.lineTo(p1[0], p1[1])
-  ctx.stroke()
-}
-</script2>
-
+<script src = "./manager.js"></script>
 
 
 <script>
-  ta.innerHTML='kjkjk'
-  // let p0 = [-100, 100]
-  // let p1 = [-200, 100]
-  // let line01 = []
-  // ds([p0, p1])
-  // line01 = gc.line_point_point(line01, p0, p1)
-  // console.log('line 01', line01)
-  // dp(p0, 'green')
-  // dp(p1, 'red')
 
 
-  let p = `
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-  drawAxis()
-
-  let p0 = [-100, 100]
-  let p1 = [-200, 100]
-  let p21 = [-250, 152]
-  let line01 = []
-  let line21 = []
-  ds([p0, p1])
-  ds([p0, p21])
-  line01 = gc.line_point_point(line01, p0, p1)
-  line21 = gc.line_point_point(line21, p0, p21)
-  let p22 = []
-  p22 = gc.point_per_point_line(p22, p1, line21)
-  console.log('line 01', line01)
-  dp(p0, 'green')
-  dp(p1, 'red')
-  dp(p21, 'red')
-  dp(p22, 'blue')
-  ds([p1, p22])
-  let e3 = {type: 'line', a: .8, b: .6, c: -3}
-  // let e3 = {type: 'line', a: 1, b:0, c: -3}
-console.log('cen ', gc.lineCenter(e3))
-let p3 = {type: 'point', x: 2.4, y:1.98}
-let p3r = gc.lineGetRel(e3, p3)
-console.log('p3r ', p3r)
-let p3a = gc.lineGetAbs(e3, p3r)
-let p3a1 = gc.lineGetAbs(e3, {type: 'point', x: 10, y: 0})
-let p3a2 = gc.lineGetAbs(e3, {type: 'point', x: -10, y: 0})
-console.log('p3a ', p3a)
-console.log('p3a1 ', p3a1)
-console.log('p3a2 ', p3a2)
-
-dli(e3)
-  `
-
-p = `
-let p0 = point(-150, 200, 'green')
-let p1 = point(-110, 120, 'green')
-let p2 = point(55, 10)
-let p3 = point(100, 110)
-let lii = gc.line(p0, p1)
-let li2 = gc.line(p1,p2)
-let li3 = gc.line(p2,p3)
-let p00 = point(0, 0)
-let pp = gc.perPoint(lii, p00)
-let ppar = gc.parPoint(lii, -55)
-console.log(lii)
-let p4 = point(50, 50)
-let li4 = gc.perLine(lii, p4)
-let lir = gc.line(p2, p3)
-let lia = gc.absLine(lii, lir)
-let lir2 = gc.relLine(lii, lia)
-let p5 = gc.lineGetRel(lii, {x: 5, y:0})
-lir2.c +=3
-console.log(lir, lia)
-
-//d([p0, p1, lii, pp, ppar, p4, li4, p2, p3, li2, li3])
-d([p0, p1, lii, pp, ppar, p2, p3, lir, p5, lia, lir2])
-`
-
-p = `
-ctx.clearRect(0, 0, canvas.width, canvas.height)
-drawAxis()
-let p0 = point(-150, 280, 'green')
-let p1 = point(-110, 120, 'green')
-let p2 = point(55, 150)
-let p3 = point(85, 110)
-let p4 = point(120, 125)
-let p5 = point(150, 115)
-let p6 = point(170, 145)
-let p7 = point(175, 255)
-
-let s1 = gc.seg([p0, p1, p2, p3,p4,p5, p6, p7, gc.clone(p0)])
- gc.move(s1, gc.point(-1, -110))
-s1.color = 'red'
-// let s1r = gc.rotate(s1, .5, p0);s1 = s1r
-
-d([s1])
-
-d([s1])
-let s2 = gc.shiftPline(s1, 0)
-let s3 = gc.shiftPline(s1, 100)
-d(s3,'red')
-s2 =gc.filletPoly(s2, 132)
-let trs2 = gc.triangles1(s2, gc.point(110, 111))
-console.log('trs2 ', trs2)
-s3 =gc.filletPoly(s3, 142)
-
-console.log('s2 ', s2)
-d([s2, s3], null, 1)
-let trs = gc.triangles(s2, s3)
-console.log(trs)
-trs.forEach(t => dtr(t))
-trs2.forEach(t => dtr(t, 'green'))
-
-// let li1 = gc.line(p1, p2)
-// let li2 = gc.line(p2, p3)
-// let pnts = gc.filletLines(li1, li2, 33, 33)
-// let pnts2 = gc.filletSeg(p1, p2, p2, p3, 23)
-// let sf = gc.seg(pnts2)
-//d([sf])
-
-// let sfn = gc.filletPoly(s1, 22)
-// d(sfn)
-
-`
-
-function generateArrowPoly() {
-    console.warn('gen arrow poly')
-    let tipLen = 150
-    let tipWidth = 130
-    let width = 60
-    
-    // let tip = this.positionTip
-    // let tail = this.positionTail
-    // let dx = tip.x - tail.x
-    // let dy = tip.y - tail.y
-    let len = 355 // Math.sqrt(dx * dx + dy * dy)
-    let gc = new GeomCore()
-
-    let poly = [
-      0,-20,
-      //  130, 50,
-        tipWidth, tipLen+13,
-        width, tipLen,
-        width, len,
-        //,
-        //0, len,
-    ]
-    let pts = []
-    for (let i=0; i<poly.length; i+=2) {
-        pts.push(gc.point(poly[i], poly[i+1]))
-    }
-    // poly.forEach(p => pts.push(gc.point(p[0], p[1])))
-    let gPoly = gc.seg(pts)
-    gPoly = gc.mirrow(gPoly)
-
-    return gPoly
-    
-   }
-
-p = `
-  // ctx.clearRect(0, 0, canvas.width, canvas.height)
-gc.clear()
-
-let pl = generateArrowPoly()
-pl.isClosed = true
-gc.move(pl, {x: 0, y:-151})
-// d([pl])
-
-let pl3 = gc.shiftPline(pl, 31)
-// d(pl3, 'red')
-
-
-let pl2f = gc.filletPoly(pl, 13)
-let pl3f = gc.filletPoly(pl3, 33)
-d([pl2f, pl3f], 'green')
-
-let trs = gc.triangles(pl2f, pl3f)
-d(trs)
-
-`
-
-p2=`
-gc.clear()
-let p1 = gc.point(100, 10)
-let p2 = gc.point(-100, 100)
-let p3 = gc.point(-90, 0)
-let p4 = gc.point(-90, 50)
-let p5 = gc.point(100, 280)
-let p6 = gc.point(-100, 280)
-let p7 = gc.point(100, 80)
-let p8 = gc.point(110, -89)
-let p9 = gc.point(10, -99)
-
-// d(p3)
-let pl = gc.seg([p1, p2, p3, p4, p5, p6, p7, p8, p9])
-gc.move(pl, {x:-110, y:0})
-let plt = gc.clone(pl)
-console.log('plt ', JSON.stringify(plt))
-gc.trimPoly(plt)
-gc.move(plt, {x: 211, y:0})
-// d([pl, plt])
-`
-
-let a1 = `
-gc.clear()
-gc.drawAxis()
-let p0 = gc.point(100, 10)
-let p1 = gc.point(-100, 100)
-let p2 = gc.point(-90, 0)
-let p3 = gc.point(-70, 30)
-
-let pl = gc.seg([p0, p1, p2, p3])
-
-let seg1 = gc.seg([p0, p1])
-let seg2 = gc.seg([p2, p3])
-let p4 = gc.int(seg1, seg2, {asLines: true})
-let p5 = gc.mid(p0, p3)
-let p6 = gc.int(seg1, p5, {asLines: true})
-
-console.log('p5 ', p5, seg1, seg2)
-
-// d([p0, p1, p2, p3, p4])
-d([p0, p1, p2, p3, p4, p5, p6])
-d(pl)
-
-
-`
-
-
-
-// p=`
-// let p1 =gc.point(111,111)
-// d(p1)
-// `
-
-let pEval =a1
+let pEval =projects.trimPoly.prog
   ta.value=pEval
 
   eval(pEval)
-  document.getElementById('apply').addEventListener('click', () => {
+  document.getElementById('applyButton').addEventListener('click', () => {
     let t = ta.value
 
     console.log(t)

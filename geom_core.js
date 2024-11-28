@@ -8,7 +8,7 @@ class GeomCore {
     eps = .000001
     pointCount = 0
     isDebug = false
-    isCanvas = true
+    isCanvas = false
     ctx = null
     constructor(width, height) {
         this.width = width ?? 600
@@ -25,14 +25,21 @@ class GeomCore {
         }
     }
     
-    initCanvas() {
+    initCanvas(parent) {
         let canv = document.createElement('canvas')
         this.ctx = canv.getContext('2d')
         canv.width = this.width
         canv.height = this.height
-        canv.style = 'position: fixed; z-index: 99999; width: 600px; height: 600px; left: 0px; top:0px;';
+        // canv.style = 'position: fixed; z-index: 9999; width: 600px; height: 600px; left: 0px; top:0px;';
+        canv.style = 'z-index: 9999; width: 600px; height: 600px; left: 0px; top:0px;';
         canv.id = 'geomCanv'
-        document.querySelector('body').appendChild(canv)  
+
+        if (parent) { 
+            parent.appendChild(canv)  
+        } else {
+            document.querySelector('body').appendChild(canv)  
+
+        }
         d = this.d.bind(this)  
     }
 
@@ -147,9 +154,7 @@ class GeomCore {
         ctx.fillStyle = c
         ctx.strokeStyle = c
         let cen = gc.lineCenter(line1)
-        console.log('cen ', cen)
-        //cen.x = 22; 
-        //cen.y = 33
+
         let r = 11
         let cen1 = {type: 'point', x: cen.x + line1.a * r, y: cen.y +line1.b*r}
         let cenc = this.conv(cen)
@@ -306,7 +311,7 @@ class GeomCore {
         if (ob.type === 'seg') {
             let pts = []
             ob.pts.forEach((e, i) => {
-                console.log('c i ', i, e)
+                // console.log('clone i ', i, e)
                 pts.push(this.clone(ob.pts[i]))
             })
             let rez = {

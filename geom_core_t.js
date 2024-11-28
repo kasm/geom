@@ -44,7 +44,7 @@ let d
     canv.width = this.width
     canv.height = this.height
     canv.style.position = "fixed"
-    canv.style.zIndex = "99999"
+    canv.style.zIndex = "99998"
     canv.style.width = "600px"
     canv.style.height = "600px"
     canv.style.left = "0px"
