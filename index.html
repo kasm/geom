@@ -21,6 +21,18 @@
         width: 450px;
         height: 550px;
       }
+      #projectsContainer {
+        border: 2px solid aquamarine;
+        padding: 5px;
+        width: 800px;
+        top: 333px;
+        font-size: 32px;
+      }
+
+      #projectsContainer > div {
+        margin: 5px;
+        border: 2px solid orange
+      }
     </style>
   </head>
 <body>
@@ -42,6 +54,11 @@
       
     </div>
   </div>
+
+  <div id="projectsContainer">
+
+  </div>
+    <script src = "./manager.js"></script>
 
 </body>
 <script2 style = "display: none;">
@@ -204,7 +221,6 @@ function dtr(tr, color) {
 
 
 <script>
-  let ta = document.querySelector('textarea')
   ta.innerHTML='kjkjk'
   // let p0 = [-100, 100]
   // let p1 = [-200, 100]

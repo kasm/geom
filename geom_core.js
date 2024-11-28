@@ -66,18 +66,13 @@ class GeomCore {
     dp(p, color, text) {
         let r = 4
         let ctx = this.ctx
-
-        // ctx.moveTo(0, 0)
-        // ctx.lineTo(111,111)
-        // ctx.stroke()
         let col = (color ?? p.color) ?? 'black'
-        //c = c ?? 'black'
         if (p?.type === 'point') {
               ctx.beginPath()
               ctx.fillStyle = col
               ctx.strokeStyle = col
               let c = this.conv(p)
-              console.log('draw point  type ', c, p)
+            //   console.log('draw point  type ', c, p)
 
             //   ctx.arc(c[0], c[1], r, 0, Math.PI*2)
               ctx.arc(c.x, c.y, r, 0, Math.PI*2)
