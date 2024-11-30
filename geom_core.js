@@ -8,7 +8,7 @@ class GeomCore {
     eps = .000001
     pointCount = 0
     isDebug = false
-    isCanvas = true
+    isCanvas = false
     ctx = null
     constructor(width, height) {
         this.width = width ?? 600
@@ -25,14 +25,21 @@ class GeomCore {
         }
     }
     
-    initCanvas() {
+    initCanvas(parent) {
         let canv = document.createElement('canvas')
         this.ctx = canv.getContext('2d')
         canv.width = this.width
         canv.height = this.height
-        canv.style = 'position: fixed; z-index: 99999; width: 600px; height: 600px; left: 0px; top:0px;';
+        // canv.style = 'position: fixed; z-index: 9999; width: 600px; height: 600px; left: 0px; top:0px;';
+        canv.style = 'z-index: 9999; width: 600px; height: 600px; left: 0px; top:0px;';
         canv.id = 'geomCanv'
-        document.querySelector('body').appendChild(canv)  
+
+        if (parent) { 
+            parent.appendChild(canv)  
+        } else {
+            document.querySelector('body').appendChild(canv)  
+
+        }
         d = this.d.bind(this)  
     }
 
@@ -72,14 +79,13 @@ class GeomCore {
               ctx.fillStyle = col
               ctx.strokeStyle = col
               let c = this.conv(p)
-            //   console.log('draw point  type ', c, p)
+              console.log('draw point  type ', c, p)
 
             //   ctx.arc(c[0], c[1], r, 0, Math.PI*2)
               ctx.arc(c.x, c.y, r, 0, Math.PI*2)
               //ctx.arc(200,200, r, 0, Math.PI*2)
              // ctx.stroke()
               ctx.fill()
-              //console.error('jkjkj', c)
               ctx.fillStyle = 'red'
               
               ctx.font = '18px Arial'
@@ -93,6 +99,7 @@ class GeomCore {
 
 
     d(ob, p2, p3) {
+        console.warn('draw ', ob, p2, p3)
         if (Array.isArray(ob) && ob[0]?.length === 3) {
           ob.forEach(t => this.dtr(t))
           return
@@ -114,7 +121,7 @@ class GeomCore {
         if (seg1?.type) {
 
         }
-        console.warn('ds ', seg1, color, width)
+        // console.warn('ds ', seg1, color, width)
         ctx.beginPath()
         ctx.strokeStyle = (color ?? seg1.color) ?? 'black'
 
@@ -147,9 +154,7 @@ class GeomCore {
         ctx.fillStyle = c
         ctx.strokeStyle = c
         let cen = gc.lineCenter(line1)
-        console.log('cen ', cen)
-        //cen.x = 22; 
-        //cen.y = 33
+
         let r = 11
         let cen1 = {type: 'point', x: cen.x + line1.a * r, y: cen.y +line1.b*r}
         let cenc = this.conv(cen)
@@ -171,7 +176,8 @@ class GeomCore {
         let ctx = this.ctx
         ctx.beginPath()
         ctx.lineWidth = 1
-        ctx.strokeStyle = color ?? 'blue'
+        let col = (color ?? tr.color) ?? 'blue'
+        ctx.strokeStyle = col
         let p1 = this.conv(tr[0])
         let p2 = this.conv(tr[1])
         let p3 = this.conv(tr[2])
@@ -306,7 +312,7 @@ class GeomCore {
         if (ob.type === 'seg') {
             let pts = []
             ob.pts.forEach((e, i) => {
-                console.log('c i ', i, e)
+                // console.log('clone i ', i, e)
                 pts.push(this.clone(ob.pts[i]))
             })
             let rez = {
@@ -487,13 +493,6 @@ class GeomCore {
         
         let dang = ang2 - ang1
 
-        // let dang = ang2 - ang1
-        // if (dang > Math.PI * 2) {
-        //     ang2 -= Math.PI * 2
-        //     dang = ang2 - ang1
-        // }
-
-
         // choose smallest angle        
         if (this.isDebug) {
             console.log('d ', d1x, d1y, r)
@@ -503,16 +502,6 @@ class GeomCore {
             ang2 += -Math.PI  * 2 * Math.sign(dang)
             dang = ang2 - ang1
         }
-
-//         let angSign = Math.sign(this.lineGetRel(line1, pir).y)
-        
-//         dang = ang2 - angSign * ang1
-//         console.log('sign ', angSign, dang)
-//         dang = this.normailzeAngle(dang) * angSign
-// console.log('norm ', dang)
-
-
-
 
 
         for (let i = 0; i < n-1; i++) {
@@ -643,6 +632,7 @@ class GeomCore {
     }
 
     triangles(pline1, pline2) {
+        
         let pts1 = pline1.pts
         let pts2 = pline2.pts
         let trs = []
