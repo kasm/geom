@@ -29,6 +29,36 @@ console.log(lir, lia)
 d([p0, p1, p00, lii, pp, ppar, p2, p3, lir, p5, lia, lir2, li4, p4])
 `
 
+
+intersectionSteps = `
+gc.clear()
+gc.drawAxis()
+let p0 = gc.point(-150, 200, 'green')
+let p1 = gc.point(-110, 120, 'green')
+let p2 = gc.point(55, 10)
+let p3 = gc.point(100, 110)
+let li1 = gc.line(p0, p1)
+let li2 = gc.line(p2, p3)
+
+let p2rel = gc.lineGetRel(li1, p2)
+let p3rel = gc.lineGetRel(li1, p3)
+p2rel.name = 'p2rel'
+p3rel.name = 'p3rel'
+
+let p1rel = gc.lineGetRel(li2, p1)
+let p0rel = gc.lineGetRel(li2, p0)
+p1rel.name = 'p1rel'
+p0rel.name = 'p0rel'
+
+if (p0rel.y * p1rel.y < 0 && p2rel.y * p3rel.y < 0) {
+    let intPoint = gc.int(li1, li2)
+    d(intPoint, 'red', 22)
+}
+
+d([p0, p1, p2, p3, li1, li2, p2rel, p3rel, p1rel, p0rel])
+
+`
+
 tapeTriangle = `
 gc.clear()
 gc.drawAxis()
@@ -163,5 +193,8 @@ let projects = {
     },
     tapeTriangle: {
         prog: tapeTriangle
+    },
+    intersectionSteps: {
+        prog: intersectionSteps
     }
 }
