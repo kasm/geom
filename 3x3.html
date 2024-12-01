@@ -1,0 +1,89 @@
+<html>
+  <head>
+    <title>3x3</title>
+    <script src="3x3.js"></script>
+  </head>
+  <style>
+    .row {
+      display: flex;
+    }
+    .col {
+      width: 50px;
+      height: 50px;
+      border: 1px solid black;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 48px;
+    }
+
+  </style>
+  <body>
+    <div id="cont"></div>
+    <script>
+
+let cont = document.getElementById('cont');
+let nx = 3;
+let ny = 3;
+let arr = []
+function init() {
+  for (let i = 0; i < nx; i++) {
+    let row = document.createElement('div');
+    row.classList.add('row');
+    arr.push([]);
+    for (let j = 0; j < ny; j++) {
+      let col = document.createElement('div');
+      col.classList.add('col');
+      col.addEventListener('click', () => clickCell(i, j));
+      row.appendChild(col);
+      let cell = { x: i, y: j, col: col ,val: j%2 === 0 ? 1 : 1};
+      arr[i].push(cell);
+    }
+    cont.appendChild(row);
+  }
+  console.log('arr', arr)
+}  
+
+function update() {
+  for (let i = 0; i < nx; i++) {
+    for (let j = 0; j < ny; j++) {
+      let cell = arr[i][j];
+      cell.col.innerHTML = cell.val ? "X" : " ";
+    }
+  }
+}
+
+function isFeild(y, x) {
+  if (y < 0 || y >= nx || x < 0 || x >= ny) return false;
+  return true
+}
+function clickCell(y, x) {
+  let rNeib = 1
+  let neibs = [
+    
+  ]
+  for (let i=-rNeib; i<=rNeib; i++) {
+    if (!isFeild(y+i, x)) continue;
+    if (i === 0) continue;
+    neibs.push(arr[y+i][x])
+  }
+  for (let i=-rNeib; i<=rNeib; i++) {
+    if (!isFeild(y, x+i)) continue;
+    if (i === 0) continue;
+    neibs.push(arr[y][x+i])
+  }
+  for (let i=0; i<neibs.length; i++) {
+    neibs[i].val = !neibs[i].val
+  }
+  let cell = arr[y][x];
+  cell.val = !cell.val;
+
+  update();
+}
+
+
+init()    
+update()
+    </script>
+  </body>
+
+</html>
