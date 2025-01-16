@@ -34,8 +34,8 @@ intersectionSteps = `
 gc.clear()
 gc.drawAxis()
 let p0 = gc.point(-150, 200, 'green')
-let p1 = gc.point(-110, 120, 'green')
-let p2 = gc.point(55, 10)
+let p1 = gc.point(110, -120, 'green')
+let p2 = gc.point(-155, 55)
 let p3 = gc.point(100, 110)
 let li1 = gc.line(p0, p1)
 let li2 = gc.line(p2, p3)
@@ -52,6 +52,7 @@ p0rel.name = 'p0rel'
 
 if (p0rel.y * p1rel.y < 0 && p2rel.y * p3rel.y < 0) {
     let intPoint = gc.int(li1, li2)
+    intPoint.name = 'intPoint'
     d(intPoint, 'red', 22)
 }
 
